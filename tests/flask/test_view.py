@@ -6,15 +6,6 @@ from strawberry.flask.views import GraphQLView as BaseGraphQLView
 from strawberry.types import ExecutionResult, Info
 
 
-def test_fails_when_request_body_has_invalid_json(flask_client):
-    response = flask_client.post(
-        "/graphql",
-        data='{"qeury": "{__typena"',
-        headers={"content-type": "application/json"},
-    )
-    assert response.status_code == 400
-
-
 def test_custom_context():
     class CustomGraphQLView(BaseGraphQLView):
         def get_context(self, response: Response):
