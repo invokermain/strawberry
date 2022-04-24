@@ -5,37 +5,6 @@ from flask import Flask, Response, request
 from strawberry.flask.views import GraphQLView as BaseGraphQLView
 from strawberry.types import ExecutionResult, Info
 
-from .app import create_app
-
-
-def test_graphql_query(flask_client):
-    query = {
-        "query": """
-            query {
-                hello
-            }
-        """
-    }
-
-    response = flask_client.get("/graphql", json=query)
-    data = json.loads(response.data.decode())
-
-    assert response.status_code == 200
-    assert data["data"]["hello"] == "Hello world"
-
-
-def test_can_pass_variables(flask_client):
-    query = {
-        "query": "query Hello($name: String!) { hello(name: $name) }",
-        "variables": {"name": "James"},
-    }
-
-    response = flask_client.get("/graphql", json=query)
-    data = json.loads(response.data.decode())
-
-    assert response.status_code == 200
-    assert data["data"]["hello"] == "Hello James"
-
 
 def test_fails_when_request_body_has_invalid_json(flask_client):
     response = flask_client.post(
@@ -44,24 +13,6 @@ def test_fails_when_request_body_has_invalid_json(flask_client):
         headers={"content-type": "application/json"},
     )
     assert response.status_code == 400
-
-
-def test_graphiql_view(flask_client):
-    flask_client.environ_base["HTTP_ACCEPT"] = "text/html"
-    response = flask_client.get("/graphql")
-    body = response.data.decode()
-
-    assert "GraphiQL" in body
-
-
-def test_graphiql_disabled_view():
-    app = create_app(graphiql=False)
-
-    with app.test_client() as client:
-        client.environ_base["HTTP_ACCEPT"] = "text/html"
-        response = client.get("/graphql")
-
-        assert response.status_code == 415
 
 
 def test_custom_context():
